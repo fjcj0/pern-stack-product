@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 axios.defaults.withCredentials = true;
-const BASE_URL = "http://localhost:2500/api/products";
+const BASE_URL = import.meta.env.NODE_ENV !== "development" ? "/api/products" : "http://localhost:2500/api/products";
 export const useProductStore = create((set, get) => ({
     products: [],
     currentProduct: null,

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { DollarSignIcon, ImageIcon, Package2Icon, PlusCircleIcon } from "lucide-react";
 import { useProductStore } from "../../store/useProductStore";
-const BASE_URL = "http://localhost:2500/api/products";
 function AddProductModal() {
     const { addProduct } = useProductStore();
     const [formData, setFormData] = useState({ name: "", price: "", image: "" });
