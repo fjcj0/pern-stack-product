@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { PackageIcon, PlusCircleIcon, RefreshCwIcon } from "lucide-react";
 import ProductCard from "../components/ProductCard";
 import { useProductStore } from '../../store/useProductStore';
+import AddProductModal from "../components/addProductModal";
 function HomePage() {
     const { products, loading, error, fetchProducts } = useProductStore();
     useEffect(() => {
@@ -21,6 +22,7 @@ function HomePage() {
                     <RefreshCwIcon className="w-5 h-5" />
                 </button>
             </div>
+            <AddProductModal />
             {error && <div className="alert alert-error mb-8">{error}</div>}
             {products.length === 0 && !loading && (
                 <div className="flex flex-col justify-center items-center h-96 space-y-4">
