@@ -5,16 +5,15 @@ axios.defaults.withCredentials = true;
 const BASE_URL = "http://localhost:2500/api/products";
 export const useProductStore = create((set, get) => ({
     products: [],
+    currentProduct: null,
+    formData: { name: "", price: "", image: "" },
     loading: false,
     error: null,
     fetchProducts: async () => {
         set({ loading: true });
         try {
             const response = await axios.get(BASE_URL);
-            set({
-                error: null,
-                products: response.data.data,
-            });
+            set({ products: response.data.data, error: null });
         } catch (error) {
             console.error(error.message);
             set({ error: error.message });
@@ -22,13 +21,19 @@ export const useProductStore = create((set, get) => ({
             set({ loading: false });
         }
     },
-    deleteProduct: async (productId) => {
+    fetchProduct: async (id) => {
         set({ loading: true });
         try {
-            await axios.delete(`${BASE_URL}/${productId}`);
-            const updatedProducts = get().products.filter(p => p.id !== productId);
-            set({ products: updatedProducts, error: null });
-            toast.success('Product deleted successfully!!');
+            const response = await axios.get(`${BASE_URL}/${id}`);
+            set({
+                currentProduct: response.data.product,
+                formData: {
+                    name: response.data.product.name,
+                    price: response.data.product.price,
+                    image: response.data.product.image
+                },
+                error: null
+            });
         } catch (error) {
             console.error(error.message);
             set({ error: error.message });
@@ -39,18 +44,46 @@ export const useProductStore = create((set, get) => ({
     addProduct: async (name, price, image) => {
         set({ loading: true });
         try {
-            await axios.post(BASE_URL, {
-                name,
-                price,
-                image
-            });
+            await axios.post(BASE_URL, { name, price, image });
             await get().fetchProducts();
-            toast.success('Product created successfully!!');
+            document.getElementById('add_product_modal')?.close();
+            toast.success('Product created successfully!');
         } catch (error) {
-            console.log(error.message);
+            console.error(error.message);
             set({ error: error.message });
+            toast.error('Failed to create product!');
         } finally {
             set({ loading: false });
         }
     },
+    updateProduct: async (id) => {
+        const { formData } = get();
+        set({ loading: true });
+        try {
+            await axios.put(`${BASE_URL}/${id}`, formData);
+            await get().fetchProducts(); // refresh product list
+            toast.success('Product updated successfully!');
+        } catch (error) {
+            console.error(error.message);
+            set({ error: error.message });
+            toast.error('Failed to update product!');
+        } finally {
+            set({ loading: false });
+        }
+    },
+    deleteProduct: async (id) => {
+        set({ loading: true });
+        try {
+            await axios.delete(`${BASE_URL}/${id}`);
+            set({ products: get().products.filter(p => p.id !== id), error: null });
+            toast.success('Product deleted successfully!');
+        } catch (error) {
+            console.error(error.message);
+            set({ error: error.message });
+            toast.error('Failed to delete product!');
+        } finally {
+            set({ loading: false });
+        }
+    },
+    setFormData: (data) => set({ formData: data }),
 }));
